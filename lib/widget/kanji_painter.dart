@@ -10,7 +10,19 @@ class KanjiPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    for (Stroke s in writing.strokes) {
+    final currentPath = Path();
+    if (writing.current.points.isNotEmpty) {
+      currentPath.moveTo(
+          writing.current.points.first.dx, writing.current.points.first.dy);
+      for (int i = 1; i < writing.current.points.length - 1; i++) {
+        currentPath.lineTo(
+            writing.current.points[i].dx, writing.current.points[i].dy);
+      }
+      Paint paint = Paint()
+        ..style = PaintingStyle.stroke;
+      canvas.drawPath(currentPath, paint);
+    }
+    for (Stroke s in writing.existing) {
       final path = Path();
       path.moveTo(s.points.first.dx, s.points.first.dy);
       for (int i = 1; i < s.points.length - 1; i++) {
@@ -26,5 +38,4 @@ class KanjiPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     return true;
   }
-
 }

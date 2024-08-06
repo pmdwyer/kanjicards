@@ -9,23 +9,16 @@ class KanjiCanvas extends StatefulWidget {
     super.key,
   });
 
+  @override
   State<KanjiCanvas> createState() => _KanjiCanvas();
 }
 
 class _KanjiCanvas extends State<KanjiCanvas> {
-  final Writing writing = Writing();
-  Stroke currStroke = Stroke();
+  Writing writing = Writing(current: Stroke(points: []), existing: []);
 
-  void addPoint(Offset point) {
+  void updateWriting(Writing newWriting) {
     setState(() {
-      currStroke.addPoint(point);
-    });
-  }
-
-  void finishStroke() {
-    setState(() {
-      writing.addStroke(currStroke);
-      currStroke = Stroke();
+      writing = newWriting;
     });
   }
 
@@ -35,18 +28,21 @@ class _KanjiCanvas extends State<KanjiCanvas> {
       onPointerDown: (details) {
         final box = context.findRenderObject() as RenderBox;
         final offset = box.globalToLocal(details.position);
-        addPoint(offset);
+        writing.current.points.add(offset);
+        updateWriting(Writing(current: writing.current, existing: writing.existing));
       },
       onPointerMove: (details) {
         final box = context.findRenderObject() as RenderBox;
         final offset = box.globalToLocal(details.position);
-        addPoint(offset);
+        writing.current.points.add(offset);
+        updateWriting(Writing(current: writing.current, existing: writing.existing));
       },
       onPointerUp: (details) {
         final box = context.findRenderObject() as RenderBox;
         final offset = box.globalToLocal(details.position);
-        addPoint(offset);
-        finishStroke();
+        writing.current.points.add(offset);
+        writing.existing.add(writing.current);
+        updateWriting(Writing(current: Stroke(points: []), existing: writing.existing));
       },
       child: RepaintBoundary(
         child: SizedBox(
